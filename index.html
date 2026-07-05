@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delish Duo Bakery — Bill Maker</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#A93A56">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Karla:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#F7F1E4;
+    --paper:#FFFEFB;
+    --ink:#2E2013;
+    --ink-soft:#6B5D4C;
+    --berry:#A93A56;
+    --berry-dark:#7A2740;
+    --caramel:#C1793D;
+    --line:#E4D6BC;
+    --stamp:#F1E4C8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(46,32,19,0.06) 1px, transparent 1.6px);
+    background-size:16px 16px;
+    color:var(--ink);
+    font-family:'Karla', sans-serif;
+    min-height:100vh;
+    padding:28px 16px 80px;
+  }
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+  }
+  .topbar{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:24px;
+  }
+  .topbar h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:26px;
+    margin:0;
+    letter-spacing:0.2px;
+  }
+  .topbar span{
+    color:var(--ink-soft);
+    font-size:13px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    gap:22px;
+    align-items:start;
+  }
+  @media (max-width:880px){
+    .grid{grid-template-columns:1fr;}
+  }
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 20px;
+    margin-bottom:18px;
+  }
+  .card h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:15px;
+    margin:0 0 14px;
+    color:var(--berry-dark);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card h2::before{
+    content:'';
+    width:6px;height:6px;border-radius:50%;
+    background:var(--berry);
+    display:inline-block;
+  }
+  label{
+    display:block;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+    font-weight:500;
+  }
+  .field{margin-bottom:12px;}
+  input[type=text], input[type=tel], input[type=number], textarea, select{
+    width:100%;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:6px;
+    padding:9px 10px;
+    font-family:'Karla', sans-serif;
+    font-size:14px;
+    color:var(--ink);
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-color:var(--berry);
+    box-shadow:0 0 0 3px rgba(169,58,86,0.12);
+  }
+  textarea{resize:vertical;min-height:48px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  table.items{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:10px;
+  }
+  table.items th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    font-weight:700;
+    padding:0 6px 8px;
+    border-bottom:1px solid var(--line);
+  }
+  table.items td{
+    padding:6px 6px;
+    vertical-align:middle;
+  }
+  table.items td input{padding:7px 8px;font-size:13px;}
+  .qty-input{width:56px;text-align:center;}
+  .price-input{width:88px;}
+  .amt-cell{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    text-align:right;
+    white-space:nowrap;
+    min-width:70px;
+  }
+  .rm-btn{
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    font-size:16px;
+    cursor:pointer;
+    line-height:1;
+    padding:4px 6px;
+    border-radius:5px;
+  }
+  .rm-btn:hover{background:#FBEAF0;color:var(--berry-dark);}
+
+  .add-item-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:none;
+    border:1px dashed var(--caramel);
+    color:var(--caramel);
+    font-weight:700;
+    font-size:13px;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .add-item-btn:hover{background:#FBF1E2;}
+
+  .discount-row{display:grid;grid-template-columns:110px 1fr;gap:10px;}
+
+  .download-btn{
+    width:100%;
+    background:var(--berry);
+    color:#fff;
+    border:none;
+    font-family:'Karla', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:14px;
+    border-radius:8px;
+    cursor:pointer;
+    letter-spacing:0.2px;
+  }
+  .download-btn:hover{background:var(--berry-dark);}
+  .download-btn:disabled{opacity:0.6;cursor:wait;}
+
+  .new-bill-btn{
+    width:100%;
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-soft);
+    font-family:'Karla', sans-serif;
+    font-size:13px;
+    padding:9px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:8px;
+  }
+  .new-bill-btn:hover{border-color:var(--ink-soft);color:var(--ink);}
+
+  /* ---- Invoice preview ---- */
+  .preview-outer{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:0;
+    overflow:hidden;
+    position:sticky;
+    top:20px;
+  }
+  .scallop{
+    height:14px;
+    background-image:radial-gradient(circle at 10px 0, transparent 9px, var(--paper) 9.5px);
+    background-size:20px 14px;
+    background-repeat:repeat-x;
+    background-color:var(--bg);
+  }
+  #invoice{
+    background:var(--paper);
+    padding:28px 26px 22px;
+  }
+  .inv-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:14px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:16px;
+    margin-bottom:16px;
+  }
+  .brand-block{display:flex;align-items:center;gap:12px;}
+  .seal{
+    width:52px;height:52px;border-radius:50%;
+    background:var(--stamp);
+    border:1.5px dashed var(--caramel);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:17px;
+    color:var(--berry-dark);
+    flex-shrink:0;
+  }
+  .brand-name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:22px;
+    color:var(--ink);
+    margin:0;
+    line-height:1.15;
+  }
+  .brand-sub{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin:3px 0 0;
+    line-height:1.5;
+  }
+  .inv-meta{
+    text-align:right;
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .inv-meta .tag{
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:16px;
+    color:var(--berry);
+    display:block;
+    margin-bottom:6px;
+  }
+  .inv-meta div{margin-top:2px;}
+  .bill-to{
+    margin-bottom:16px;
+  }
+  .bill-to label{
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:var(--ink-soft);
+    margin-bottom:3px;
+  }
+  .bill-to .name{font-weight:700;font-size:14.5px;}
+  .bill-to .meta{font-size:12.5px;color:var(--ink-soft);line-height:1.5;}
+
+  table.inv-items{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:6px;
+  }
+  table.inv-items thead th{
+    text-align:left;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:#fff;
+    background:var(--ink);
+    padding:7px 8px;
+  }
+  table.inv-items thead th.num{text-align:right;}
+  table.inv-items tbody td{
+    padding:7px 8px;
+    font-size:13px;
+    border-bottom:1px solid var(--line);
+  }
+  table.inv-items tbody td.num{
+    text-align:right;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+  }
+  table.inv-items tbody tr:nth-child(even){background:#FBF7EE;}
+
+  .totals{
+    margin-left:auto;
+    width:230px;
+    margin-top:10px;
+  }
+  .totals .line{
+    display:flex;justify-content:space-between;
+    font-size:13px;
+    padding:5px 0;
+    color:var(--ink-soft);
+  }
+  .totals .line.grand{
+    border-top:2px solid var(--ink);
+    margin-top:4px;
+    padding-top:9px;
+    font-size:16px;
+    font-weight:700;
+    color:var(--ink);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .totals .line span:last-child{font-family:'IBM Plex Mono', monospace;}
+
+  .gst-note{
+    text-align:center;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:18px;
+    padding-top:12px;
+    border-top:1px dashed var(--line);
+  }
+  .thanks{
+    text-align:center;
+    font-family:'Fraunces', serif;
+    font-style:italic;
+    font-size:14px;
+    color:var(--berry);
+    margin-top:10px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <h1>🧁 Delish Duo — Bill Maker</h1>
+    <span>Fill in the details, watch the bill build itself, download when ready.</span>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: FORM -->
+    <div>
+      <div class="card">
+        <h2>Customer details</h2>
+        <div class="field">
+          <label for="custName">Customer name</label>
+          <input type="text" id="custName" placeholder="e.g. Anjali Sharma">
+        </div>
+        <div class="field">
+          <label for="custMobile">Mobile number</label>
+          <input type="tel" id="custMobile" placeholder="e.g. 9876543210">
+        </div>
+        <div class="field">
+          <label for="custAddress">Address</label>
+          <textarea id="custAddress" placeholder="Delivery / billing address"></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Items</h2>
+        <table class="items">
+          <thead>
+            <tr>
+              <th style="width:44%">Item</th>
+              <th>Price (₹)</th>
+              <th>Qty</th>
+              <th style="text-align:right">Amount</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+        <button class="add-item-btn" id="addItemBtn" type="button">+ Add item</button>
+      </div>
+
+      <div class="card">
+        <h2>Discount</h2>
+        <div class="discount-row">
+          <select id="discType">
+            <option value="flat">₹ Flat</option>
+            <option value="pct">% Percent</option>
+          </select>
+          <input type="number" id="discValue" placeholder="0" min="0" step="0.01">
+        </div>
+      </div>
+
+      <button class="download-btn" id="downloadBtn" type="button">Download PDF bill</button>
+      <button class="new-bill-btn" id="newBillBtn" type="button">Start a new bill</button>
+    </div>
+
+    <!-- RIGHT: PREVIEW -->
+    <div class="preview-outer">
+      <div class="scallop"></div>
+      <div id="invoice">
+        <div class="inv-head">
+          <div class="brand-block">
+            <div class="seal">DD</div>
+            <div>
+              <p class="brand-name">Delish Duo Bakery</p>
+              <p class="brand-sub">
+                Owner: Susmita Pandey &nbsp;·&nbsp; 7974518776<br>
+                D3 302, Aditya Aluminium, Lapanga, Sambalpur, Odisha 786212
+              </p>
+            </div>
+          </div>
+          <div class="inv-meta">
+            <span class="tag">Bill</span>
+            <div id="billNo">No: DD-000001</div>
+            <div id="billDate">Date: —</div>
+          </div>
+        </div>
+
+        <div class="bill-to">
+          <label>Billed to</label>
+          <div class="name" id="pvName">Walk-in customer</div>
+          <div class="meta" id="pvMobile"></div>
+          <div class="meta" id="pvAddress"></div>
+        </div>
+
+        <table class="inv-items">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th class="num">Price</th>
+              <th class="num">Qty</th>
+              <th class="num">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="pvItemsBody"></tbody>
+        </table>
+
+        <div class="totals">
+          <div class="line"><span>Subtotal</span><span id="pvSubtotal">₹0.00</span></div>
+          <div class="line"><span id="pvDiscLabel">Discount</span><span id="pvDiscount">₹0.00</span></div>
+          <div class="line grand"><span>Total</span><span id="pvTotal">₹0.00</span></div>
+        </div>
+
+        <div class="gst-note">GST not applicable on this bill · prices as listed</div>
+        <div class="thanks">Thank you for baking your day sweeter with us!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let items = [];
+let idCounter = 0;
+const billNo = 'DD-' + Math.floor(100000 + Math.random()*900000);
+
+function fmt(n){
+  return '₹' + (Math.round((n + Number.EPSILON) * 100) / 100).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function addItem(name, price, qty){
+  idCounter++;
+  items.push({id: idCounter, name: name || '', price: price ?? '', qty: qty ?? 1});
+  renderItems();
+}
+
+function removeItem(id){
+  items = items.filter(i => i.id !== id);
+  renderItems();
+}
+
+function renderItems(){
+  const body = document.getElementById('itemsBody');
+  body.innerHTML = '';
+  items.forEach(item => {
+    const tr = document.createElement('tr');
+    const amount = (parseFloat(item.price)||0) * (parseFloat(item.qty)||0);
+    tr.innerHTML = `
+      <td><input type="text" value="${item.name}" data-id="${item.id}" data-field="name" placeholder="Item name"></td>
+      <td><input type="number" class="price-input" value="${item.price}" data-id="${item.id}" data-field="price" min="0" step="0.01" placeholder="0"></td>
+      <td><input type="number" class="qty-input" value="${item.qty}" data-id="${item.id}" data-field="qty" min="0" step="1"></td>
+      <td class="amt-cell">${fmt(amount)}</td>
+      <td><button class="rm-btn" data-id="${item.id}" type="button" title="Remove item">✕</button></td>
+    `;
+    body.appendChild(tr);
+  });
+  body.querySelectorAll('input').forEach(inp => {
+    inp.addEventListener('input', onItemInput);
+  });
+  body.querySelectorAll('.rm-btn').forEach(btn => {
+    btn.addEventListener('click', () => removeItem(parseInt(btn.dataset.id)));
+  });
+  updatePreview();
+}
+
+function onItemInput(e){
+  const id = parseInt(e.target.dataset.id);
+  const field = e.target.dataset.field;
+  const item = items.find(i => i.id === id);
+  if(!item) return;
+  item[field] = e.target.value;
+  const row = e.target.closest('tr');
+  const amount = (parseFloat(item.price)||0) * (parseFloat(item.qty)||0);
+  row.querySelector('.amt-cell').textContent = fmt(amount);
+  updatePreview();
+}
+
+function calcSubtotal(){
+  return items.reduce((sum, i) => sum + (parseFloat(i.price)||0) * (parseFloat(i.qty)||0), 0);
+}
+
+function calcDiscount(subtotal){
+  const type = document.getElementById('discType').value;
+  const val = parseFloat(document.getElementById('discValue').value) || 0;
+  if(val <= 0) return 0;
+  if(type === 'pct') return Math.min(subtotal, subtotal * (val/100));
+  return Math.min(subtotal, val);
+}
+
+function updatePreview(){
+  document.getElementById('pvName').textContent = document.getElementById('custName').value.trim() || 'Walk-in customer';
+  const mobile = document.getElementById('custMobile').value.trim();
+  document.getElementById('pvMobile').textContent = mobile ? 'Mobile: ' + mobile : '';
+  document.getElementById('pvAddress').textContent = document.getElementById('custAddress').value.trim();
+
+  const pvBody = document.getElementById('pvItemsBody');
+  pvBody.innerHTML = '';
+  items.forEach(item => {
+    if(!item.name && !item.price) return;
+    const amount = (parseFloat(item.price)||0) * (parseFloat(item.qty)||0);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.name || '—'}</td>
+      <td class="num">${fmt(parseFloat(item.price)||0)}</td>
+      <td class="num">${item.qty || 0}</td>
+      <td class="num">${fmt(amount)}</td>
+    `;
+    pvBody.appendChild(tr);
+  });
+
+  const subtotal = calcSubtotal();
+  const discount = calcDiscount(subtotal);
+  const total = subtotal - discount;
+
+  const discType = document.getElementById('discType').value;
+  const discVal = parseFloat(document.getElementById('discValue').value) || 0;
+  document.getElementById('pvDiscLabel').textContent = discType === 'pct' ? `Discount (${discVal}%)` : 'Discount';
+
+  document.getElementById('pvSubtotal').textContent = fmt(subtotal);
+  document.getElementById('pvDiscount').textContent = discount > 0 ? '-' + fmt(discount) : fmt(0);
+  document.getElementById('pvTotal').textContent = fmt(total);
+}
+
+function setDateAndBillNo(){
+  document.getElementById('billNo').textContent = 'No: ' + billNo;
+  const now = new Date();
+  const opts = { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' };
+  document.getElementById('billDate').textContent = 'Date: ' + now.toLocaleString('en-IN', opts);
+}
+
+document.getElementById('addItemBtn').addEventListener('click', () => addItem('', '', 1));
+document.getElementById('custName').addEventListener('input', updatePreview);
+document.getElementById('custMobile').addEventListener('input', updatePreview);
+document.getElementById('custAddress').addEventListener('input', updatePreview);
+document.getElementById('discType').addEventListener('change', updatePreview);
+document.getElementById('discValue').addEventListener('input', updatePreview);
+
+document.getElementById('newBillBtn').addEventListener('click', () => {
+  document.getElementById('custName').value = '';
+  document.getElementById('custMobile').value = '';
+  document.getElementById('custAddress').value = '';
+  document.getElementById('discValue').value = '';
+  document.getElementById('discType').value = 'flat';
+  items = [];
+  addItem('', '', 1);
+});
+
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('downloadBtn');
+  btn.disabled = true;
+  btn.textContent = 'Preparing your PDF…';
+  try{
+    const node = document.getElementById('invoice');
+    const canvas = await html2canvas(node, { scale: 2.5, backgroundColor: '#FFFEFB' });
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    if(imgHeight <= pageHeight){
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    } else {
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while(heightLeft > 0){
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+    }
+    const custName = document.getElementById('custName').value.trim().replace(/[^a-z0-9]+/gi, '-') || 'customer';
+    pdf.save(`DelishDuo-Bill-${billNo}-${custName}.pdf`);
+  } catch(err){
+    alert('Could not generate the PDF. Please try again.');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Download PDF bill';
+  }
+});
+
+setDateAndBillNo();
+addItem('', '', 1);
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
