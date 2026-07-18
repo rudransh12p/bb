@@ -400,33 +400,173 @@
   }
   .print-btn:hover{background:#000;}
 
-  /* ---- Thermal receipt (only shown when printing) ---- */
-  #thermalReceipt{ display:none; }
+  /* ---- Thermal receipt (hidden on screen, shown for print/image capture) ---- */
+  #thermalReceipt{
+    display:none;
+    font-family:'IBM Plex Mono', monospace;
+    color:#000;
+    background:#fff;
+    padding:16px 12px;
+  }
+  #thermalReceipt.w58{ width:384px; font-size:19px; }
+  #thermalReceipt.w80{ width:576px; font-size:23px; }
+  #thermalReceipt .t-center{ text-align:center; }
+  #thermalReceipt .t-line{ border-top:2px dashed #000; margin:8px 0; }
+  #thermalReceipt .t-row{ display:flex; justify-content:space-between; gap:6px; margin:3px 0; }
+  #thermalReceipt .t-bold{ font-weight:700; }
+  #thermalReceipt .t-name{ font-size:1.3em; font-weight:700; }
+  #thermalReceipt .t-small{ font-size:0.75em; }
+  #thermalReceipt table{ width:100%; border-collapse:collapse; margin:6px 0; }
+  #thermalReceipt td{ padding:3px 0; vertical-align:top; }
+  #thermalReceipt .t-item-name{ width:55%; word-break:break-word; }
+  #thermalReceipt .t-num{ text-align:right; white-space:nowrap; }
 
   @media print{
     body *{ visibility:hidden; }
     #thermalReceipt, #thermalReceipt *{ visibility:visible; }
     #thermalReceipt{
-      display:block;
+      display:block !important;
       position:absolute;
       left:0; top:0;
-      font-family:'IBM Plex Mono', monospace;
-      color:#000;
-      background:#fff;
     }
-    #thermalReceipt.w58{ width:48mm; font-size:10px; }
-    #thermalReceipt.w80{ width:72mm; font-size:11px; }
     @page{ margin:0; size:auto; }
-    .t-center{ text-align:center; }
-    .t-line{ border-top:1px dashed #000; margin:5px 0; }
-    .t-row{ display:flex; justify-content:space-between; gap:6px; }
-    .t-bold{ font-weight:700; }
-    .t-name{ font-size:1.25em; font-weight:700; }
-    .t-small{ font-size:0.85em; }
-    #thermalReceipt table{ width:100%; border-collapse:collapse; margin:4px 0; }
-    #thermalReceipt td{ padding:2px 0; vertical-align:top; }
-    #thermalReceipt .t-item-name{ width:52%; word-break:break-word; }
-    #thermalReceipt .t-num{ text-align:right; white-space:nowrap; }
+  }
+
+  /* ---- Tabs ---- */
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .tab-btn{
+    padding:10px 20px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    cursor:pointer;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ink-soft);
+    font-family:'Karla', sans-serif;
+  }
+  .tab-btn.active{
+    background:var(--berry);
+    color:#fff;
+    border-color:var(--berry);
+  }
+
+  .save-order-btn{
+    width:100%;
+    background:var(--caramel);
+    color:#fff;
+    border:none;
+    font-family:'Karla', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:14px;
+    border-radius:8px;
+    cursor:pointer;
+    margin-bottom:10px;
+  }
+  .save-order-btn:hover{background:#A9682E;}
+
+  .editing-banner{
+    background:#FBF1E2;
+    border:1px solid var(--caramel);
+    color:var(--berry-dark);
+    font-size:12.5px;
+    font-weight:700;
+    padding:9px 12px;
+    border-radius:8px;
+    margin-bottom:12px;
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .editing-banner button{
+    background:none;
+    border:none;
+    color:var(--berry-dark);
+    text-decoration:underline;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:700;
+  }
+
+  /* ---- History view ---- */
+  .history-summary{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-bottom:20px;
+  }
+  .stat-card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:20px;
+    text-align:center;
+  }
+  .stat-card .num{
+    font-family:'Fraunces', serif;
+    font-size:30px;
+    font-weight:600;
+    color:var(--berry-dark);
+    line-height:1.1;
+  }
+  .stat-card .label{
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-top:6px;
+  }
+
+  table.history-table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  table.history-table th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    font-weight:700;
+    padding:0 8px 8px;
+    border-bottom:1px solid var(--line);
+  }
+  table.history-table th.num, table.history-table td.num{text-align:right;}
+  table.history-table td{
+    padding:10px 8px;
+    font-size:13px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  table.history-table td.hist-total{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+  }
+  table.history-table tr:last-child td{border-bottom:none;}
+  .hist-actions{white-space:nowrap;}
+  .hist-btn{
+    background:none;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:5px 10px;
+    font-size:12px;
+    cursor:pointer;
+    margin-right:6px;
+    color:var(--ink-soft);
+  }
+  .hist-btn.edit:hover{border-color:var(--berry);color:var(--berry-dark);}
+  .hist-btn.del:hover{border-color:#B0392F;color:#B0392F;}
+  .empty-history{
+    text-align:center;
+    padding:30px 10px;
+    color:var(--ink-soft);
+    font-size:13.5px;
   }
 </style>
 </head>
@@ -437,9 +577,20 @@
     <span>Fill in the details, watch the bill build itself, download when ready.</span>
   </div>
 
+  <div class="tabs">
+    <button class="tab-btn active" id="tabNewBill" type="button">🧾 New Bill</button>
+    <button class="tab-btn" id="tabHistory" type="button">📖 History</button>
+  </div>
+
+  <div id="newBillView">
   <div class="grid">
     <!-- LEFT: FORM -->
     <div>
+      <div class="editing-banner" id="editingBanner">
+        <span id="editingBannerText">Editing order DD-000000</span>
+        <button type="button" id="cancelEditBtn">Cancel edit</button>
+      </div>
+
       <div class="card">
         <h2>Customer details</h2>
         <div class="field">
@@ -496,6 +647,7 @@
         <button class="print-btn" id="printBtn" type="button">🖨️ Print receipt</button>
       </div>
 
+      <button class="save-order-btn" id="saveOrderBtn" type="button">💾 Save order to history</button>
       <button class="download-btn" id="downloadBtn" type="button">Download PDF bill</button>
       <div class="action-row">
         <button class="image-btn" id="imageBtn" type="button">🖼️ Download as image</button>
@@ -555,6 +707,37 @@
       </div>
     </div>
   </div>
+  </div>
+  <!-- /#newBillView -->
+
+  <div id="historyView" style="display:none;">
+    <div class="history-summary">
+      <div class="stat-card">
+        <div class="num" id="statOrders">0</div>
+        <div class="label">Total orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="statSales">₹0.00</div>
+        <div class="label">Total sale</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Order history</h2>
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Bill No</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th class="num">Total</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+      <div class="empty-history" id="emptyHistory" style="display:none;">No orders saved yet. Save a bill from the New Bill tab to see it here.</div>
+    </div>
+  </div>
 
   <div id="thermalReceipt" class="w80">
     <div class="t-center t-name">Delish Duo Bakery</div>
@@ -587,7 +770,30 @@
 <script>
 let items = [];
 let idCounter = 0;
-const billNo = 'DD-' + Math.floor(100000 + Math.random()*900000);
+let billNo = generateBillNo();
+let editingOrderId = null;
+let orders = [];
+
+function generateBillNo(){
+  return 'DD-' + Math.floor(100000 + Math.random()*900000);
+}
+
+function loadOrders(){
+  try{
+    const raw = localStorage.getItem('ddb_orders');
+    orders = raw ? JSON.parse(raw) : [];
+  } catch(e){
+    orders = [];
+  }
+}
+
+function saveOrders(){
+  try{
+    localStorage.setItem('ddb_orders', JSON.stringify(orders));
+  } catch(e){
+    console.error('Could not save order history', e);
+  }
+}
 
 function fmt(n){
   return '₹' + (Math.round((n + Number.EPSILON) * 100) / 100).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -729,11 +935,12 @@ function updateThermalReceipt(){
   receipt.classList.add(width);
 }
 
-function setDateAndBillNo(){
+function setDateAndBillNo(dateOverride){
   document.getElementById('billNo').textContent = 'No: ' + billNo;
-  const now = new Date();
+  const now = dateOverride ? new Date(dateOverride) : new Date();
   const opts = { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' };
   document.getElementById('billDate').textContent = 'Date: ' + now.toLocaleString('en-IN', opts);
+  window.currentBillISODate = dateOverride || now.toISOString();
 }
 
 document.getElementById('addItemBtn').addEventListener('click', () => addItem('', '', 1));
@@ -744,14 +951,180 @@ document.getElementById('discType').addEventListener('change', updatePreview);
 document.getElementById('discValue').addEventListener('input', updatePreview);
 
 document.getElementById('newBillBtn').addEventListener('click', () => {
+  startFreshBill();
+});
+
+function startFreshBill(){
   document.getElementById('custName').value = '';
   document.getElementById('custMobile').value = '';
   document.getElementById('custAddress').value = '';
   document.getElementById('discValue').value = '';
   document.getElementById('discType').value = 'flat';
   items = [];
+  editingOrderId = null;
+  document.getElementById('editingBanner').style.display = 'none';
+  document.getElementById('saveOrderBtn').textContent = '💾 Save order to history';
+  billNo = generateBillNo();
+  setDateAndBillNo();
   addItem('', '', 1);
+}
+
+function fmtDateShort(iso){
+  try{
+    return new Date(iso).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  } catch(e){ return iso; }
+}
+
+function renderHistory(){
+  const body = document.getElementById('historyBody');
+  const empty = document.getElementById('emptyHistory');
+  body.innerHTML = '';
+
+  const sorted = [...orders].sort((a,b) => new Date(b.date) - new Date(a.date));
+  const totalSales = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+  document.getElementById('statOrders').textContent = orders.length;
+  document.getElementById('statSales').textContent = fmt(totalSales);
+
+  if(sorted.length === 0){
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  sorted.forEach(order => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${order.billNo}</td>
+      <td>${fmtDateShort(order.date)}</td>
+      <td>${order.custName || 'Walk-in customer'}</td>
+      <td class="num hist-total">${fmt(order.total)}</td>
+      <td class="hist-actions">
+        <button class="hist-btn edit" data-id="${order.id}" type="button">Edit</button>
+        <button class="hist-btn del" data-id="${order.id}" type="button">Delete</button>
+      </td>
+    `;
+    body.appendChild(tr);
+  });
+
+  body.querySelectorAll('.hist-btn.edit').forEach(btn => {
+    btn.addEventListener('click', () => editOrder(btn.dataset.id));
+  });
+  body.querySelectorAll('.hist-btn.del').forEach(btn => {
+    btn.addEventListener('click', () => deleteOrder(btn.dataset.id));
+  });
+}
+
+function editOrder(id){
+  const order = orders.find(o => String(o.id) === String(id));
+  if(!order) return;
+
+  document.getElementById('custName').value = order.custName || '';
+  document.getElementById('custMobile').value = order.custMobile || '';
+  document.getElementById('custAddress').value = order.custAddress || '';
+  document.getElementById('discType').value = order.discType || 'flat';
+  document.getElementById('discValue').value = order.discValue || '';
+
+  items = [];
+  idCounter = 0;
+  (order.items || []).forEach(it => {
+    idCounter++;
+    items.push({ id: idCounter, name: it.name, price: it.price, qty: it.qty });
+  });
+  if(items.length === 0){ idCounter++; items.push({id: idCounter, name:'', price:'', qty:1}); }
+
+  billNo = order.billNo;
+  editingOrderId = order.id;
+  setDateAndBillNo(order.date);
+  renderItems();
+
+  document.getElementById('editingBanner').style.display = 'flex';
+  document.getElementById('editingBannerText').textContent = `Editing order ${order.billNo}`;
+  document.getElementById('saveOrderBtn').textContent = '💾 Update order';
+
+  switchTab('newBill');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function deleteOrder(id){
+  if(!confirm('Delete this order from history? This cannot be undone.')) return;
+  orders = orders.filter(o => String(o.id) !== String(id));
+  saveOrders();
+  renderHistory();
+}
+
+document.getElementById('saveOrderBtn').addEventListener('click', () => {
+  const subtotal = calcSubtotal();
+  const discount = calcDiscount(subtotal);
+  const total = subtotal - discount;
+
+  const cleanItems = items
+    .filter(i => i.name || i.price)
+    .map(i => ({ name: i.name, price: parseFloat(i.price)||0, qty: parseFloat(i.qty)||0 }));
+
+  if(cleanItems.length === 0){
+    alert('Add at least one item before saving the order.');
+    return;
+  }
+
+  const orderData = {
+    id: editingOrderId || Date.now(),
+    billNo: billNo,
+    date: window.currentBillISODate || new Date().toISOString(),
+    custName: document.getElementById('custName').value.trim(),
+    custMobile: document.getElementById('custMobile').value.trim(),
+    custAddress: document.getElementById('custAddress').value.trim(),
+    items: cleanItems,
+    discType: document.getElementById('discType').value,
+    discValue: parseFloat(document.getElementById('discValue').value) || 0,
+    subtotal, discount, total
+  };
+
+  if(editingOrderId){
+    const idx = orders.findIndex(o => o.id === editingOrderId);
+    if(idx > -1) orders[idx] = orderData;
+  } else {
+    orders.push(orderData);
+  }
+  saveOrders();
+  renderHistory();
+
+  const btn = document.getElementById('saveOrderBtn');
+  const original = btn.textContent;
+  btn.textContent = '✓ Saved!';
+  setTimeout(() => { btn.textContent = original; }, 1400);
 });
+
+document.getElementById('cancelEditBtn').addEventListener('click', () => {
+  startFreshBill();
+});
+
+function switchTab(tab){
+  const newBillView = document.getElementById('newBillView');
+  const historyView = document.getElementById('historyView');
+  const tabNewBill = document.getElementById('tabNewBill');
+  const tabHistory = document.getElementById('tabHistory');
+
+  if(tab === 'history'){
+    newBillView.style.display = 'none';
+    historyView.style.display = 'block';
+    tabHistory.classList.add('active');
+    tabNewBill.classList.remove('active');
+    renderHistory();
+  } else {
+    newBillView.style.display = 'block';
+    historyView.style.display = 'none';
+    tabNewBill.classList.add('active');
+    tabHistory.classList.remove('active');
+  }
+}
+
+document.getElementById('tabNewBill').addEventListener('click', () => switchTab('newBill'));
+document.getElementById('tabHistory').addEventListener('click', () => switchTab('history'));
+
+loadOrders();
+setDateAndBillNo();
+addItem('', '', 1);
 
 document.getElementById('downloadBtn').addEventListener('click', async () => {
   const btn = document.getElementById('downloadBtn');
@@ -804,25 +1177,35 @@ document.getElementById('imageBtn').addEventListener('click', async () => {
   const btn = document.getElementById('imageBtn');
   btn.disabled = true;
   btn.textContent = 'Preparing image…';
+  const receipt = document.getElementById('thermalReceipt');
+  updateThermalReceipt();
+
+  const prevDisplay = receipt.style.display;
+  const prevPosition = receipt.style.position;
+  const prevLeft = receipt.style.left;
+  receipt.style.position = 'fixed';
+  receipt.style.left = '-4000px';
+  receipt.style.top = '0';
+  receipt.style.display = 'block';
+
   try{
-    const node = document.getElementById('invoice');
-    const canvas = await html2canvas(node, { scale: 2.5, backgroundColor: '#FFFEFB' });
+    const canvas = await html2canvas(receipt, { scale: 2, backgroundColor: '#ffffff' });
     const link = document.createElement('a');
     const custName = document.getElementById('custName').value.trim().replace(/[^a-z0-9]+/gi, '-') || 'customer';
-    link.download = `DelishDuo-Bill-${billNo}-${custName}.png`;
+    link.download = `DelishDuo-Receipt-${billNo}-${custName}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
   } catch(err){
     alert('Could not generate the image. Please try again.');
     console.error(err);
   } finally {
+    receipt.style.display = prevDisplay;
+    receipt.style.position = prevPosition;
+    receipt.style.left = prevLeft;
     btn.disabled = false;
     btn.textContent = '🖼️ Download as image';
   }
 });
-
-setDateAndBillNo();
-addItem('', '', 1);
 
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
