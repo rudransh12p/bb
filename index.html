@@ -355,6 +355,79 @@
     color:var(--berry);
     margin-top:10px;
   }
+
+  /* ---- Extra action buttons row ---- */
+  .action-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:8px;
+  }
+  .image-btn{
+    width:100%;
+    background:#fff;
+    color:var(--berry-dark);
+    border:1.5px solid var(--berry);
+    font-family:'Karla', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:12px;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .image-btn:hover{background:#FBEAF0;}
+  .image-btn:disabled{opacity:0.6;cursor:wait;}
+
+  .thermal-card{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .thermal-card select{width:auto;min-width:110px;}
+  .print-btn{
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    font-family:'Karla', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:11px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .print-btn:hover{background:#000;}
+
+  /* ---- Thermal receipt (only shown when printing) ---- */
+  #thermalReceipt{ display:none; }
+
+  @media print{
+    body *{ visibility:hidden; }
+    #thermalReceipt, #thermalReceipt *{ visibility:visible; }
+    #thermalReceipt{
+      display:block;
+      position:absolute;
+      left:0; top:0;
+      font-family:'IBM Plex Mono', monospace;
+      color:#000;
+      background:#fff;
+    }
+    #thermalReceipt.w58{ width:48mm; font-size:10px; }
+    #thermalReceipt.w80{ width:72mm; font-size:11px; }
+    @page{ margin:0; size:auto; }
+    .t-center{ text-align:center; }
+    .t-line{ border-top:1px dashed #000; margin:5px 0; }
+    .t-row{ display:flex; justify-content:space-between; gap:6px; }
+    .t-bold{ font-weight:700; }
+    .t-name{ font-size:1.25em; font-weight:700; }
+    .t-small{ font-size:0.85em; }
+    #thermalReceipt table{ width:100%; border-collapse:collapse; margin:4px 0; }
+    #thermalReceipt td{ padding:2px 0; vertical-align:top; }
+    #thermalReceipt .t-item-name{ width:52%; word-break:break-word; }
+    #thermalReceipt .t-num{ text-align:right; white-space:nowrap; }
+  }
 </style>
 </head>
 <body>
@@ -411,8 +484,23 @@
         </div>
       </div>
 
+      <div class="card thermal-card">
+        <div>
+          <h2 style="margin-bottom:6px;">Thermal printer</h2>
+          <label for="thermalWidth" style="margin-bottom:0;">Paper width</label>
+          <select id="thermalWidth">
+            <option value="w80">80mm</option>
+            <option value="w58">58mm</option>
+          </select>
+        </div>
+        <button class="print-btn" id="printBtn" type="button">🖨️ Print receipt</button>
+      </div>
+
       <button class="download-btn" id="downloadBtn" type="button">Download PDF bill</button>
-      <button class="new-bill-btn" id="newBillBtn" type="button">Start a new bill</button>
+      <div class="action-row">
+        <button class="image-btn" id="imageBtn" type="button">🖼️ Download as image</button>
+        <button class="new-bill-btn" id="newBillBtn" type="button" style="margin-top:0;">Start a new bill</button>
+      </div>
     </div>
 
     <!-- RIGHT: PREVIEW -->
@@ -466,6 +554,33 @@
         <div class="thanks">Thank you for baking your day sweeter with us!</div>
       </div>
     </div>
+  </div>
+
+  <div id="thermalReceipt" class="w80">
+    <div class="t-center t-name">Delish Duo Bakery</div>
+    <div class="t-center t-small">Susmita Pandey · 7974518776</div>
+    <div class="t-center t-small">D3 302, Aditya Aluminium, Lapanga,<br>Sambalpur, Odisha 786212</div>
+    <div class="t-line"></div>
+    <div class="t-row"><span id="tBillNo">No: DD-000001</span></div>
+    <div class="t-row"><span id="tBillDate">Date: —</span></div>
+    <div class="t-line"></div>
+    <div id="tCustBlock">
+      <div class="t-bold" id="tCustName">Walk-in customer</div>
+      <div class="t-small" id="tCustMobile"></div>
+      <div class="t-small" id="tCustAddress"></div>
+    </div>
+    <div class="t-line"></div>
+    <table>
+      <tbody id="tItemsBody"></tbody>
+    </table>
+    <div class="t-line"></div>
+    <div class="t-row"><span>Subtotal</span><span id="tSubtotal">₹0.00</span></div>
+    <div class="t-row" id="tDiscRow"><span id="tDiscLabel">Discount</span><span id="tDiscount">₹0.00</span></div>
+    <div class="t-line"></div>
+    <div class="t-row t-bold" style="font-size:1.15em;"><span>TOTAL</span><span id="tTotal">₹0.00</span></div>
+    <div class="t-line"></div>
+    <div class="t-center t-small">GST not applicable</div>
+    <div class="t-center t-small" style="margin-top:6px;">Thank you, visit again!</div>
   </div>
 </div>
 
@@ -569,6 +684,49 @@ function updatePreview(){
   document.getElementById('pvSubtotal').textContent = fmt(subtotal);
   document.getElementById('pvDiscount').textContent = discount > 0 ? '-' + fmt(discount) : fmt(0);
   document.getElementById('pvTotal').textContent = fmt(total);
+
+  updateThermalReceipt();
+}
+
+function updateThermalReceipt(){
+  document.getElementById('tBillNo').textContent = document.getElementById('billNo').textContent;
+  document.getElementById('tBillDate').textContent = document.getElementById('billDate').textContent;
+
+  document.getElementById('tCustName').textContent = document.getElementById('pvName').textContent;
+  document.getElementById('tCustMobile').textContent = document.getElementById('pvMobile').textContent;
+  document.getElementById('tCustAddress').textContent = document.getElementById('pvAddress').textContent;
+
+  const tBody = document.getElementById('tItemsBody');
+  tBody.innerHTML = '';
+  items.forEach(item => {
+    if(!item.name && !item.price) return;
+    const amount = (parseFloat(item.price)||0) * (parseFloat(item.qty)||0);
+    const qty = item.qty || 0;
+    const price = parseFloat(item.price)||0;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="t-item-name">${item.name || '—'}<br><span class="t-small">${qty} x ${fmt(price)}</span></td>
+      <td class="t-num">${fmt(amount)}</td>
+    `;
+    tBody.appendChild(tr);
+  });
+
+  const subtotal = calcSubtotal();
+  const discount = calcDiscount(subtotal);
+  const total = subtotal - discount;
+  const discType = document.getElementById('discType').value;
+  const discVal = parseFloat(document.getElementById('discValue').value) || 0;
+
+  document.getElementById('tSubtotal').textContent = fmt(subtotal);
+  document.getElementById('tDiscLabel').textContent = discType === 'pct' ? `Discount (${discVal}%)` : 'Discount';
+  document.getElementById('tDiscount').textContent = discount > 0 ? '-' + fmt(discount) : fmt(0);
+  document.getElementById('tDiscRow').style.display = discount > 0 ? 'flex' : 'none';
+  document.getElementById('tTotal').textContent = fmt(total);
+
+  const width = document.getElementById('thermalWidth').value;
+  const receipt = document.getElementById('thermalReceipt');
+  receipt.classList.remove('w58','w80');
+  receipt.classList.add(width);
 }
 
 function setDateAndBillNo(){
@@ -632,6 +790,34 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
   } finally {
     btn.disabled = false;
     btn.textContent = 'Download PDF bill';
+  }
+});
+
+document.getElementById('printBtn').addEventListener('click', () => {
+  updateThermalReceipt();
+  window.print();
+});
+
+document.getElementById('thermalWidth').addEventListener('change', updateThermalReceipt);
+
+document.getElementById('imageBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('imageBtn');
+  btn.disabled = true;
+  btn.textContent = 'Preparing image…';
+  try{
+    const node = document.getElementById('invoice');
+    const canvas = await html2canvas(node, { scale: 2.5, backgroundColor: '#FFFEFB' });
+    const link = document.createElement('a');
+    const custName = document.getElementById('custName').value.trim().replace(/[^a-z0-9]+/gi, '-') || 'customer';
+    link.download = `DelishDuo-Bill-${billNo}-${custName}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(err){
+    alert('Could not generate the image. Please try again.');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🖼️ Download as image';
   }
 });
 
